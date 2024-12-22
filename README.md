@@ -25,7 +25,7 @@ A RESTful API built with **NestJS** and **Prisma** to manage pharmacy orders. Th
 1. Run `npm install` to install all dependencies.
 2. Create the `.env` file for the database connection.
 3. Run `npx prisma migrate` to migrate the models to the database.
-4. Run `npm run dev` to start the application.
+4. Run `npm run start:dev` to start the application.
 5. Run `npm run start:db` to start the database.
 
 ---

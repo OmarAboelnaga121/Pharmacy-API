@@ -17,7 +17,7 @@ model User{
   id Int @id@default(autoincrement())
   name String 
   phoneNumber String
-  Address String
+  address String
   email String @unique
   password String
   orders Orders[]
@@ -31,7 +31,7 @@ model User{
 
 model Medicines{
     id Int @id@default(autoincrement())
-    medcinieName String
+    medicinieName String
     Description String
     price Decimal
     stock Int

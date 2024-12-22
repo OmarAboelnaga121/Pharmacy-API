@@ -3,7 +3,7 @@ CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
-    "Address" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "role" TEXT NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "Medicines" (
     "id" SERIAL NOT NULL,
-    "medcinieName" TEXT NOT NULL,
+    "medicinieName" TEXT NOT NULL,
     "Description" TEXT NOT NULL,
     "price" DECIMAL(65,30) NOT NULL,
     "stock" INTEGER NOT NULL,

@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle("Pharmacy API")
     .setDescription("The Document Of Pharmacy API")
     .setVersion("1.0")
+    .addBearerAuth() 
     .build();
 
   const document = SwaggerModule.createDocument(app, config)

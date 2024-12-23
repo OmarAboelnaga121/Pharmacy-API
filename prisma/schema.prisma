@@ -13,6 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Define the Role enum
+enum Role {
+  ADMIN
+  CUSTOMER
+  CUSTOMER_SUPPORT
+  PHARMACIST
+}
+
 model User{
   id Int @id@default(autoincrement())
   name String 
@@ -21,7 +29,7 @@ model User{
   email String @unique
   password String
   orders Orders[]
-  role String
+  role Role @default(CUSTOMER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
@@ -35,6 +43,7 @@ model Medicines{
     Description String
     price Decimal
     stock Int
+    role Role @default(CUSTOMER)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt()
 }

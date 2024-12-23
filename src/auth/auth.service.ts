@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
 import { LoginDto, RegisterDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
                 address: userDto.address,
                 email: userDto.email,
                 password: hashedPassword,
-                role: userDto.role,
+                role: userDto.role as Role,
             },
             select: { 
                 id: true,

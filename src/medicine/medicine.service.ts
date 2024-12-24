@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MedicineDto } from './dto';
+import { UserDto } from 'src/user/dto';
 
 @Injectable()
 export class MedicineService {
@@ -20,6 +22,19 @@ export class MedicineService {
     }
 
     // Post Medicine
+    async createMedicine(user: UserDto, medicine: MedicineDto){
+        console.log(user);
+        
+        if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
+            throw new UnauthorizedException('You are not authorized to perform this action');
+        }}
+
+        const newMedicine = await this.prismaService.medicines.create({
+            data: medicine
+        })
+
+        return newMedicine;
+    }
 
     // Edit Medicine
 

@@ -39,7 +39,7 @@ model User{
 
 model Medicines{
     id Int @id@default(autoincrement())
-    medicinieName String
+    medicinieName String @unique
     Description String
     price Decimal
     stock Int

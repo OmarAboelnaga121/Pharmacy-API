@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MedicineService } from './medicine.service';
-import { MedicineDto } from './dto';
+import { MedicineDto, updateMedicineDto } from './dto';
 import { UserMe } from 'src/auth/decorator/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { UserDto } from 'src/user/dto';
@@ -39,4 +39,28 @@ export class MedicineController {
     async createMedicine(@UserMe() user : UserDto ,@Body() medicine : MedicineDto) {
         return this.medicineService.createMedicine(user, medicine);
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch('update')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Update Medicine"})
+    @ApiResponse({status: 200, description: "Update Medicine"})
+    @ApiResponse({status: 500, description: "Internal Server Error"})
+    @ApiResponse({status: 401, description: "Unauthorized"})
+    @ApiBody({type: MedicineDto})
+    async editMedicine(@Query('id') id : string, @Body() medicine : updateMedicineDto, @UserMe() user : UserDto) {
+        return this.medicineService.editMedicine(id, medicine, user);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Delete('delete')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Delete Medicine"})
+    @ApiResponse({status: 200, description: "Delete Medicine"})
+    @ApiResponse({status: 500, description: "Internal Server Error"})
+    @ApiResponse({status: 401, description: "Unauthorized"})
+    async deleteMedicine(@Query('id') id : string, @UserMe() user : UserDto) {
+        return this.medicineService.deleteMedicine(id, user);
+    }
 }
+

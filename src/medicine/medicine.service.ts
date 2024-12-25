@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Injectable, Query, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { MedicineDto } from './dto';
+import { MedicineDto, updateMedicineDto } from './dto';
 import { UserDto } from 'src/user/dto';
+import { UserMe } from 'src/auth/decorator/user.decorator';
 
 @Injectable()
 export class MedicineService {
@@ -37,6 +38,29 @@ export class MedicineService {
     }
 
     // Edit Medicine
+    async editMedicine(@Query('id') id : string, @Body() medicine : updateMedicineDto, @UserMe() user : UserDto) {
+        if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
+            throw new UnauthorizedException('You are not authorized to perform this action');
+        }}
+
+        const updatedMedicine = await this.prismaService.medicines.update({
+            where: {id: parseInt(id)},
+            data: medicine
+        })
+
+        return updatedMedicine;
+    }
 
     // Delete Medicine
+    async deleteMedicine(@Query('id') id : string, @UserMe() user : UserDto) {
+        if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
+            throw new UnauthorizedException('You are not authorized to perform this action');
+        }}
+
+        const medicine = await this.prismaService.medicines.delete({
+            where: {id: parseInt(id)}
+        })
+
+        return "Medicine Deleted Successfully";
+    }
 }

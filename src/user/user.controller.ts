@@ -1,9 +1,10 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Delete, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserMe } from 'src/auth/decorator/user.decorator';
 import { UserDto } from './dto';
 import { UserService } from './user.service';
+import { UserUpdateDto } from './dto';
 
 @Controller('user')
 export class UserController {
@@ -31,5 +32,18 @@ export class UserController {
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
     async getUsers(@UserMe() user : UserDto){
         return this.userService.getAllUsers(user);
+    }
+
+    @Patch('edit/:id')
+    @UseGuards(AuthGuard('jwt'))
+    // Swagger API documentation
+    @ApiOperation({ summary: 'Edit User'})
+    @ApiBearerAuth()
+    @ApiResponse({ status: 200, description: 'User edited' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    @ApiBody({ type: UserUpdateDto })
+    async editUser(@UserMe() user : UserDto, @Body() newData : UserUpdateDto){
+        return this.userService.editUser(user.id, newData);
     }
 }

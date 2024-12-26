@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserDto } from './dto';
+import { UserDto, UserUpdateDto } from './dto';
 
 @Injectable()
 export class UserService {
@@ -18,5 +18,24 @@ export class UserService {
 
         // Return all users
         return users;
+    }
+
+    // Edit user
+    async editUser(userId: number, data: UserUpdateDto){
+        const user = this.prismaService.user.findUnique({
+            where:{id: userId}
+        })
+
+        if(!user){
+            throw new BadRequestException('User not found');
+        }
+
+        // Update user
+        const updatedUser = this.prismaService.user.update({
+            where:{id: userId},
+            data: data
+        });
+
+        return updatedUser;
     }
 }

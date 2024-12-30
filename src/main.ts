@@ -10,7 +10,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle("Pharmacy API")
-    .setDescription("The Document Of Pharmacy API")
+    .setDescription("The Document Of Pharmacy API<br><a href='https://github.com/OmarAboelnaga121/Pharmacy-API'>Github Repository</a> <br>Created By:<a href='https://www.linkedin.com/in/omar-aboelnaga-66522a343/'>Omar Wael</a>")
     .setVersion("1.0")
     .addBearerAuth() 
     .build();

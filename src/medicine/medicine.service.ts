@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MedicineDto, updateMedicineDto } from './dto';
 import { UserDto } from 'src/user/dto';
 import { UserMe } from 'src/auth/decorator/user.decorator';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class MedicineService {
@@ -39,9 +40,9 @@ export class MedicineService {
 
     // Edit Medicine
     async editMedicine(@Query('id') id : string, @Body() medicine : updateMedicineDto, @UserMe() user : UserDto) {
-        if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
+        if(user.role !== Role.ADMIN && user.role !== Role.PHARMACIST){
             throw new UnauthorizedException('You are not authorized to perform this action');
-        }}
+        }
 
         const updatedMedicine = await this.prismaService.medicines.update({
             where: {id: parseInt(id)},
@@ -53,9 +54,9 @@ export class MedicineService {
 
     // Delete Medicine
     async deleteMedicine(@Query('id') id : string, @UserMe() user : UserDto) {
-        if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
+        if(user.role !== Role.ADMIN && user.role !== Role.PHARMACIST){
             throw new UnauthorizedException('You are not authorized to perform this action');
-        }}
+        }
 
         const medicine = await this.prismaService.medicines.delete({
             where: {id: parseInt(id)}

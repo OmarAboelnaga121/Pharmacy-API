@@ -8,7 +8,7 @@ import { UserModule } from './user/user.module';
 import { MedicineModule } from './medicine/medicine.module';
 import { PrismaModule } from './prisma/prisma.module';
 import * as redisStore from 'cache-manager-redis-store'; 
-
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -19,7 +19,11 @@ import * as redisStore from 'cache-manager-redis-store';
     host:'localhost',
     port: 6379,
     ttl: 60,
-  }), AuthModule, UserModule, MedicineModule, PrismaModule],
+  }), AuthModule, UserModule, MedicineModule, PrismaModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000, 
+      limit: 10,
+    }])],
   controllers: [],
   providers: [{
     provide:APP_INTERCEPTOR,

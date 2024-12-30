@@ -5,8 +5,11 @@ import { MedicineDto, updateMedicineDto } from './dto';
 import { UserMe } from 'src/auth/decorator/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { UserDto } from 'src/user/dto';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('medicine')
+@UseGuards(ThrottlerGuard)
+@UseGuards(AuthGuard('jwt'))
 export class MedicineController {
     constructor(private medicineService : MedicineService) {}
 
@@ -28,7 +31,6 @@ export class MedicineController {
     }
 
     // Post Medicine
-    @UseGuards(AuthGuard('jwt'))
     @Post('create')
     @ApiOperation({summary: "Create Medicine"})
     @ApiBearerAuth()
@@ -40,7 +42,7 @@ export class MedicineController {
         return this.medicineService.createMedicine(user, medicine);
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    // Update Medicine
     @Patch('update')
     @ApiBearerAuth()
     @ApiOperation({summary: "Update Medicine"})
@@ -52,7 +54,7 @@ export class MedicineController {
         return this.medicineService.editMedicine(id, medicine, user);
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    // Delete Medicine
     @Delete('delete')
     @ApiBearerAuth()
     @ApiOperation({summary: "Delete Medicine"})

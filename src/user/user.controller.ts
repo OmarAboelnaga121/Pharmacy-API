@@ -5,13 +5,15 @@ import { UserMe } from 'src/auth/decorator/user.decorator';
 import { UserDto } from './dto';
 import { UserService } from './user.service';
 import { UserUpdateDto } from './dto';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('user')
+@UseGuards(ThrottlerGuard)
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
     constructor(private userService: UserService) {}
 
     @Get('profile')
-    @UseGuards(AuthGuard('jwt'))
     // Swagger API documentation
     @ApiOperation({ summary: 'Get User Profile' })
     @ApiBearerAuth()
@@ -23,7 +25,6 @@ export class UserController {
     }
 
     @Get('users')
-    @UseGuards(AuthGuard('jwt'))
     // Swagger API documentation
     @ApiOperation({ summary: 'Get All Users' })
     @ApiBearerAuth()
@@ -35,7 +36,6 @@ export class UserController {
     }
 
     @Patch('edit/:id')
-    @UseGuards(AuthGuard('jwt'))
     // Swagger API documentation
     @ApiOperation({ summary: 'Edit User'})
     @ApiBearerAuth()

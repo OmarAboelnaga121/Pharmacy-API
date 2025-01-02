@@ -6,15 +6,18 @@ import { UserMe } from 'src/auth/decorator/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { UserDto } from 'src/user/dto';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('medicine')
 @UseGuards(ThrottlerGuard)
-@UseGuards(AuthGuard('jwt'))
+
 export class MedicineController {
     constructor(private medicineService : MedicineService) {}
 
 
     @Get('all')
+    @CacheKey('all_medicines')
+    @CacheTTL(60)
     @ApiOperation({summary: "Get All Medicines"})
     @ApiResponse({status: 200, description: "Get All Medicines"})
     @ApiResponse({status: 500, description: "Internal Server Error"})
@@ -32,6 +35,7 @@ export class MedicineController {
 
     // Post Medicine
     @Post('create')
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({summary: "Create Medicine"})
     @ApiBearerAuth()
     @ApiResponse({status: 200, description: "Create Medicine"})
@@ -44,6 +48,7 @@ export class MedicineController {
 
     // Update Medicine
     @Patch('update')
+    @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     @ApiOperation({summary: "Update Medicine"})
     @ApiResponse({status: 200, description: "Update Medicine"})
@@ -56,6 +61,7 @@ export class MedicineController {
 
     // Delete Medicine
     @Delete('delete')
+    @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     @ApiOperation({summary: "Delete Medicine"})
     @ApiResponse({status: 200, description: "Delete Medicine"})

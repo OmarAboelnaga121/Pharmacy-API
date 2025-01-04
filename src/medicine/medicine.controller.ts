@@ -16,8 +16,6 @@ export class MedicineController {
 
 
     @Get('all')
-    @CacheKey('all_medicines')
-    @CacheTTL(60)
     @ApiOperation({summary: "Get All Medicines"})
     @ApiResponse({status: 200, description: "Get All Medicines"})
     @ApiResponse({status: 500, description: "Internal Server Error"})

@@ -6,6 +6,7 @@ import { UserDto } from './dto';
 import { UserService } from './user.service';
 import { UserUpdateDto } from './dto';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { Role } from '@prisma/client';
 
 @Controller('user')
 @UseGuards(ThrottlerGuard)
@@ -33,6 +34,17 @@ export class UserController {
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
     async getUsers(@UserMe() user : UserDto){
         return this.userService.getAllUsers(user);
+    }
+
+    @Get('user/roles')
+    // Swagger API documentation
+    @ApiOperation({ summary: 'Get All Users' })
+    @ApiBearerAuth()
+    @ApiResponse({ status: 200, description: 'Users' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    async getUsersByRoles(@UserMe() user : UserDto, @Query('role') role : Role){
+        return this.userService.getUsersByRole(user, role);
     }
 
     @Patch('edit')

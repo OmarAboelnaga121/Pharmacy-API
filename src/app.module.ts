@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { MedicineModule } from './medicine/medicine.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { OrdersModule } from './orders/orders.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -30,6 +31,8 @@ import * as redisStore from 'cache-manager-redis-store';
       port: 6379,
       ttl: 60, // Time to live in seconds
     }),
+    OrdersModule,
+    
   ],
   controllers: [],
   providers: [{

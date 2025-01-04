@@ -7,6 +7,7 @@ import { Role } from '@prisma/client';
 export class UserService {
     constructor(private prismaService: PrismaService) {} // PrismaService
 
+    // Get All Users
     async getAllUsers(user : UserDto){
         // Check user's role
         if(user.role !== Role.ADMIN && user.role !== Role.CUSTOMER_SUPPORT){
@@ -15,6 +16,21 @@ export class UserService {
 
         // Get all users
         const users = this.prismaService.user.findMany();
+
+        // Return all users
+        return users;
+    }
+    // Get user by roles
+    async getUsersByRole(user : UserDto, role: Role){
+        // Check user's role
+        if(user.role !== Role.ADMIN && user.role !== Role.CUSTOMER_SUPPORT){
+            throw new BadRequestException('You are not authorized to access this resource');
+        }
+
+        // Get all users
+        const users = this.prismaService.user.findMany({
+            where:{role: role}
+        });
 
         // Return all users
         return users;
@@ -39,6 +55,8 @@ export class UserService {
         return updatedUser;
     }
 
+    
+
     // Edit user for admin
     async editUsersAdmin(user : UserDto, userId : string, data : UserUpdateDto){
         if(user.role !== Role.ADMIN){
@@ -51,6 +69,10 @@ export class UserService {
 
         if(!checkUser){
             throw new BadRequestException('User not found');
+        }
+
+        if (!Object.values(Role).includes(data.role)) {
+            throw new BadRequestException('Invalid role');
         }
 
         // Update user

@@ -21,6 +21,23 @@ enum Role {
   PHARMACIST
 }
 
+// Define the type of notification
+enum NotificationType {
+  ORDER
+  NEWMEDICINE
+  MEDICINEOUTOFSTOCK
+  MEDICINEINSTOCK
+  NEWROLE
+}
+
+// Status of the order
+enum OrderStatus {
+  PENDING
+  OUTFORDELIVERY
+  DELIVERED
+  CANCELLED
+}
+
 model User{
   id Int @id@default(autoincrement())
   name String 
@@ -28,7 +45,6 @@ model User{
   address String
   email String @unique
   password String
-  orders Orders[]
   role Role @default(CUSTOMER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
@@ -49,11 +65,25 @@ model Medicines{
 
 model Orders{
   id Int @id@default(autoincrement())
-
+  medicineId Int
+  quantity Int
+  status OrderStatus @default(PENDING)
   userId Int
-  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
   @@map("orders")
+}
+
+model notification{
+  id Int @id@default(autoincrement())
+  userId Int
+  resourceId Int
+  from String
+  message String
+  type NotificationType
+  isRead Boolean @default(false)
+  targetRole Role[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }

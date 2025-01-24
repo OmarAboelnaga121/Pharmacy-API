@@ -36,7 +36,7 @@ export class UserController {
         return this.userService.getAllUsers(user);
     }
 
-    @Get('user/roles')
+    @Get('roles')
     // Swagger API documentation
     @ApiOperation({ summary: 'Get All Users' })
     @ApiBearerAuth()

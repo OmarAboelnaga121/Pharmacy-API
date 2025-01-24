@@ -57,7 +57,7 @@ export class AuthService {
         // Check for User's Password
         const isPasswordVaild = await argon2.verify(existingUser.password, userDto.password);
 
-        if(!isPasswordVaild) throw new NotFoundException('Credentials not valid');
+        if(!isPasswordVaild) throw new BadRequestException('Credentials not valid');
 
         // Generate Token
         const token = this.GenrateToken(existingUser);

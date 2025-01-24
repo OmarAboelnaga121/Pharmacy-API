@@ -18,6 +18,9 @@ const correctAdminData = {
 describe('AppController (e2e)', () => {
   let app : INestApplication;
   let prisma : PrismaService;
+  let authToken: string; 
+
+  jest.setTimeout(30000);
   
   beforeAll(async () => {
 
@@ -94,11 +97,109 @@ describe('AppController (e2e)', () => {
         .withJson(correctAdminData)
         .expectStatus(400)
     })
+    it('Login /auth/login success Status:200', async () => {
+      await pactum.spec()
+        .post('/auth/login')
+        .withJson(correctAdminData)
+        .expectStatus(201)
+        .stores('authToken', 'token.access_token')
+    })
+    it('Login /auth/login wrong email Status:400', async () => {
+      await pactum.spec()
+        .post('/auth/login')
+        .withJson({
+          "email": '',
+          "password": "StrongP@ssw0rd!",
+        })
+        .expectStatus(400)
+    })
+    it('Login /auth/login wrong password Status:400', async () => {
+      await pactum.spec()
+        .post('/auth/login')
+        .withJson({
+          "email": 'omaraboelnaga121@gmail.com',
+          "password": "WrongP@ssw0rd!",
+        })
+        .expectStatus(400)
+        
+    })
+  describe('User', () => {
+    it('GET /user/profile with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/profile')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('GET /user/profile without Authorization 401', async () => {
+      await pactum.spec()
+      .get('/user/profile')
+      .expectStatus(401)
+    })
 
+    it('GET /user/users with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/users')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+
+    it('GET /user/users without Authorization 401', async () => {
+      await pactum.spec()
+      .get('/user/users')
+      .expectStatus(401)
+    })
+
+    it('GET ADMINS /user/roles?role=ADMIN with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=ADMIN')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('GET CUSTOMERS /user/roles?role=CUSTOMER with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=CUSTOMER')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('GET CUSTOMER_SUPPORTS /user/roles?role=CUSTOMER_SUPPORT with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=CUSTOMER_SUPPORT')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('GET PHARMACISTS /user/roles?role=PHARMACIST with correct Authorization 200', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=PHARMACIST')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+
+    it('GET Wrong Role /user/roles?role=WRONG 401', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=WRONG')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(400)
+    })
+
+    it('GET /user/roles?role=WRONG without Authorization 401', async () => {
+      await pactum.spec()
+      .get('/user/roles?role=WRONG')
+      .expectStatus(401)
+    })
   })
-
-  // it('GET', () => {
-  //   it('GET /users', async () => {})
-  // });
-  // it('POST', () => {})
-});
+})
+})

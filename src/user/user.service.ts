@@ -27,6 +27,10 @@ export class UserService {
             throw new BadRequestException('You are not authorized to access this resource');
         }
 
+        if (!Object.values(Role).includes(role)) {
+            throw new BadRequestException('Invalid role');
+        }
+
         // Get all users
         const users = this.prismaService.user.findMany({
             where:{role: role}

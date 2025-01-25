@@ -2,7 +2,7 @@ import { Body, Controller, Get, Patch, Delete, Request, UseGuards, Query } from 
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserMe } from 'src/auth/decorator/user.decorator';
-import { UserDto } from './dto';
+import { UserDto, UserUpdateAdminDto } from './dto';
 import { UserService } from './user.service';
 import { UserUpdateDto } from './dto';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -67,7 +67,7 @@ export class UserController {
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
     @ApiBody({ type: UserUpdateDto })
-    async editUserForAdmin(@UserMe() user : UserDto,@Query('id') userId : string , @Body() newData : UserUpdateDto){
+    async editUserForAdmin(@UserMe() user : UserDto,@Query('id') userId : string , @Body() newData : UserUpdateAdminDto){
         return this.userService.editUsersAdmin(user ,userId , newData);
     }
 

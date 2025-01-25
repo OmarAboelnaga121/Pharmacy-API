@@ -5,6 +5,7 @@ import { AppModule } from './../src/app.module';
 import * as pactum from 'pactum'
 import { PrismaService } from '../src/prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { log } from 'console';
 
 const correctAdminData = {
   "name": "John Doe",
@@ -14,11 +15,20 @@ const correctAdminData = {
   "password": "StrongP@ssw0rd!",
   "role": Role.ADMIN
 }
+const MedicineData = {
+  "medicinieName": "Panadol Extra",
+  "Description": "For Back Pain",
+  "price": 100,
+  "stock": 500
+}
 
 describe('AppController (e2e)', () => {
   let app : INestApplication;
   let prisma : PrismaService;
   let authToken: string; 
+  let testUserId: string;
+  let testMedicineId : string
+
 
   jest.setTimeout(30000);
   
@@ -39,6 +49,21 @@ describe('AppController (e2e)', () => {
 
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
+    const testUser = await pactum.spec()
+      .post('/auth/register')
+      .withJson({
+        "name": "Test Delete User",
+        "phoneNumber": "111-222-3333",
+        "address": "Test Address",
+        "email": "testdelete@test.com",
+        "password": "StrongP@ssw0rd!",
+        "role": Role.CUSTOMER
+      })
+      .expectStatus(201)
+      .stores('userId', 'user.id') 
+      .returns('user.id');         
+  
+    testUserId = testUser;
   });
 
   afterAll(async () => {
@@ -200,6 +225,53 @@ describe('AppController (e2e)', () => {
       .get('/user/roles?role=WRONG')
       .expectStatus(401)
     })
+
+    it('PATCH /user/edit with correct Authorization 200', async () => {
+      await pactum.spec()
+      .patch('/user/edit')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "name": "John Doe",
+        "phoneNumber": "123-456-7890",
+        "address": "1234 Elm Street",
+        "email": 'heropoter1111@gmail.com',
+      })
+      .expectStatus(200)
+    })
+
+    it('PATCH /user/edit without Authorization 200', async () => {
+      await pactum.spec()
+      .patch('/user/edit')
+      .withJson({
+        "name": "John Doe",
+        "phoneNumber": "123-456-7890",
+        "address": "1234 Elm Street",
+        "email": 'heropoter1111@gmail.com',
+      })
+      .expectStatus(401)
+    })
+
+    it('DELETE /user/delete?id=testUserId with correct Authorization 200', async () => {
+      
+      await pactum.spec()
+      .delete('/user/delete')
+      .withQueryParams('id', testUserId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200);
+    })
+
   })
-})
-})
+  describe('Medicine', () => {
+
+    it('Get /medicine/all get all medicines 200', async () => {
+      pactum.spec()
+      .get('/medicine/all')
+      .expectStatus(200)
+    })
+    
+  })
+})})

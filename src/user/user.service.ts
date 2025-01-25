@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserDto, UserUpdateDto } from './dto';
+import { UserDto, UserUpdateAdminDto, UserUpdateDto } from './dto';
 import { Role } from '@prisma/client';
 @Injectable()
 export class UserService {
@@ -62,7 +62,7 @@ export class UserService {
     
 
     // Edit user for admin
-    async editUsersAdmin(user : UserDto, userId : string, data : UserUpdateDto){
+    async editUsersAdmin(user : UserDto, userId : string, data : UserUpdateAdminDto){
         if(user.role !== Role.ADMIN){
             throw new BadRequestException('You are not authorized to access this resource');
         }

@@ -27,8 +27,8 @@ export class MedicineController {
     @ApiOperation({summary: "Get Single Medicine"})
     @ApiResponse({status: 200, description: "Get Single Medicine"})
     @ApiResponse({status: 500, description: "Internal Server Error"})
-    async getSingleMedicine(@Query('name') name : string) {
-        return this.medicineService.getSingleMedicine(name);
+    async getSingleMedicine(@Query('id') id : string) {
+        return this.medicineService.getSingleMedicine(id);
     }
 
     // Post Medicine

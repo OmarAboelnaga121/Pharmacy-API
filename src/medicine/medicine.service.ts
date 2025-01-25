@@ -24,13 +24,13 @@ export class MedicineService {
     }
 
     // Get Single Medicine
-    async getSingleMedicine(medicinieName : string) {
+    async getSingleMedicine(medicineId : string) {
         const cachedMedicines = await this.cacheManager.get('medicine');
         if (cachedMedicines) {
             return cachedMedicines;
         }
         const medicine = await this.prismaService.medicines.findUnique(
-            {where:{medicinieName: medicinieName}}
+            {where:{id: parseInt(medicineId)}}
         );
         if (medicine) {
             await this.cacheManager.set('medicines', medicine, 60);

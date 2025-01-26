@@ -31,7 +31,7 @@ export class OrdersController {
     @ApiOperation({ summary: "Create User's Order"})
     @ApiBearerAuth()
     @ApiBody({ type: OrderDto })
-    @ApiResponse({ status: 200, description: 'Order created' })
+    @ApiResponse({ status: 201, description: 'Order created' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
     createOrder(@UserMe() user,@Body() order : OrderDto){
@@ -39,15 +39,15 @@ export class OrdersController {
     }
 
     // Delete User's Order
-    @Delete('deleteOrder/:orderId')
+    @Delete('deleteOrder/')
     // Swagger API documentation
     @ApiOperation({ summary: "Cancel User's Order"})
     @ApiBearerAuth()
     @ApiResponse({ status: 200, description: 'Order Deleted' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
-    deleteOrder(@UserMe() user,@Query('order id') orderId : string){
-        return this.ordersService.deleteOrder(user, orderId);
+    deleteOrder(@UserMe() user,@Query('orderId') orderId : string){
+        return this.ordersService.cancelOrder(user, orderId);
     }
     
     // Update order status

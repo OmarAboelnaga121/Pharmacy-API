@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto } from 'src/user/dto';
 import { OrderDto } from './dto/order.dto';
@@ -48,37 +48,33 @@ export class OrdersService {
         return newOrder;
     }
 
-    // Delete order
-    async deleteOrder(user: UserDto, orderId: string){
-        // Check if user exists
-        const userExists = await this.prismaService.user.findUnique({
-            where: {id: user.id}
+    async cancelOrder(user : UserDto, orderId: string) {
+        // Validate order exists
+        const order = await this.prismaService.orders.findUnique({
+            where: { id: parseInt(orderId) }
         });
-
-        if(!userExists){
-            throw new BadRequestException("User does not exist");
+    
+        if (!order) {
+            throw new BadRequestException('Order not found');
+        }
+    
+        // Check if order can be cancelled
+        if (order.status === 'DELIVERED') {
+            throw new BadRequestException('Cannot cancel delivered order');
         }
 
-        // Check if order exists
-        const orderExists = await this.prismaService.orders.findUnique({
-            where: {id: parseInt(orderId)}
-        });
-
-        if(!orderExists){
-            throw new BadRequestException("Order does not exist");
+        if(order.userId !== user.id){
+            return new BadRequestException('You are not authorized to perform this action');
         }
-
-        // Check if the order is for the user
-        if(orderExists.userId !== user.id){
-            throw new BadRequestException("Order does not belong to user");
-        }
-
-        // Delete order
-        const deletedOrder = await this.prismaService.orders.delete({
-            where: {id: parseInt(orderId)}
+    
+        // Update order status to cancelled
+        return await this.prismaService.orders.update({
+            where: { id: parseInt(orderId) },
+            data: { 
+                status: 'CANCELLED',
+                updatedAt: new Date()
+            }
         });
-
-        return deletedOrder;
     }
 
     // Update order by stauts
@@ -103,6 +99,29 @@ export class OrdersService {
 
         if(!orderExists){
             throw new BadRequestException("Order does not exist");
+        }
+
+        if(orderExists.status === status.status){
+            throw new BadRequestException("Order is already in this status");
+        }
+
+        if(status.status === OrderStatus.OUTFORDELIVERY){
+            // Get medicine details
+    const medicine = await this.prismaService.medicines.findUnique({
+        where: { id: orderExists.medicineId }
+    });
+
+    if (!medicine) {
+        throw new NotFoundException('Medicine not found');
+    }
+
+    // Update medicine stock
+    await this.prismaService.medicines.update({
+        where: { id: orderExists.medicineId },
+        data: {
+            stock: medicine.stock - orderExists.quantity
+        }
+    });
         }
 
         // Update order status

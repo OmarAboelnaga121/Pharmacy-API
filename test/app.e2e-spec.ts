@@ -5,7 +5,8 @@ import { AppModule } from './../src/app.module';
 import * as pactum from 'pactum'
 import { PrismaService } from '../src/prisma/prisma.service';
 import { Role } from '@prisma/client';
-import { log } from 'console';
+import { Prisma } from '@prisma/client';
+
 
 const correctAdminData = {
   "name": "John Doe",
@@ -15,6 +16,7 @@ const correctAdminData = {
   "password": "StrongP@ssw0rd!",
   "role": Role.ADMIN
 }
+
 const MedicineData = {
   "medicinieName": "Panadol Extra",
   "Description": "For Back Pain",
@@ -22,12 +24,16 @@ const MedicineData = {
   "stock": 500
 }
 
+
 describe('AppController (e2e)', () => {
   let app : INestApplication;
   let prisma : PrismaService;
   let authToken: string; 
   let testUserId: string;
   let testMedicineId : string
+  let testMedicineIdForOrder : string
+  let testOrderId : string
+
 
 
   jest.setTimeout(30000);
@@ -148,6 +154,8 @@ describe('AppController (e2e)', () => {
         .expectStatus(400)
         
     })
+  })
+
   describe('User', () => {
     it('GET /user/profile with correct Authorization 200', async () => {
       await pactum.spec()
@@ -241,7 +249,7 @@ describe('AppController (e2e)', () => {
       .expectStatus(200)
     })
 
-    it('PATCH /user/edit without Authorization 200', async () => {
+    it('PATCH /user/edit without Authorization 401', async () => {
       await pactum.spec()
       .patch('/user/edit')
       .withJson({
@@ -263,15 +271,136 @@ describe('AppController (e2e)', () => {
       })
       .expectStatus(200);
     })
+    it('DELETE /user/delete?id=testUserId without Authorization 401', async () => {
+      
+      await pactum.spec()
+      .delete('/user/delete')
+      .withQueryParams('id', testUserId)
+      .expectStatus(401);
+    })
 
   })
   describe('Medicine', () => {
+    it('POST /medicine/create with correct Authorization 201', async () => {
+      const createMedicine = await pactum.spec()
+      .post('/medicine/create')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson(MedicineData)
+      .expectStatus(201)
+      .returns('id'); // Store the created medicine ID
 
+      testMedicineId = createMedicine; // Assign the created medicine ID to testMedicineId
+    });
+    it('POST /medicine/create with correct Authorization for order 201', async () => {
+      const createMedicineTestForOrder = await pactum.spec()
+      .post('/medicine/create')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "medicinieName": "TEST",
+        "Description": "For Back Pain",
+        "price": 100,
+        "stock": 500
+      })
+      .expectStatus(201)
+      .returns('id'); // Store the created medicine ID
+
+      testMedicineIdForOrder = createMedicineTestForOrder; // Assign the created medicine ID to testMedicineId
+    });
     it('Get /medicine/all get all medicines 200', async () => {
       pactum.spec()
       .get('/medicine/all')
       .expectStatus(200)
     })
-    
+    it('Get /medicine/single get single medicine by id 200', async () => {
+      pactum.spec()
+      .get('/medicine/single')
+      .withQueryParams('id', testMedicineId)
+      .expectStatus(200)
+    })
+    it('PATCH /medicine/update with correct Authorization 200', async () => {
+      await pactum.spec()
+      .patch('/medicine/update')
+      .withQueryParams('id', testMedicineId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "medicinieName": "Panadol Extra",
+        "Description": "For Back Pain",
+        "price": 100,
+        "stock": 1000
+      })
+      .expectStatus(200)
+    })
+
+    it('PATCH /medicine/update without Authorization 401', async () => {
+      await pactum.spec()
+      .patch('/medicine/update')
+      .withQueryParams('id', testMedicineId)
+      .withJson({
+        "medicinieName": "Panadol Extra",
+        "Description": "For Back Pain",
+        "price": 100,
+        "stock": 1000
+      })
+      .expectStatus(401)
+    })
+
+    it('DELETE /medicine/delete?id=testMedicineId with correct Authorization 200', async () => {
+      
+      await pactum.spec()
+      .delete('/medicine/delete')
+      .withQueryParams('id', testMedicineId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200);
+    })
+    it('DELETE /medicine/delete?id=testUserId without Authorization 401', async () => {
+      
+      await pactum.spec()
+      .delete('/medicine/delete')
+      .withQueryParams('id', testUserId)
+      .expectStatus(401);
+    })
   })
-})})
+  describe('Order', () => {
+    it('POST /orders/createOrder with correct Authorization 201', async () => {
+      const order = await pactum.spec()
+      .post('/orders/createOrder')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "medicineId": testMedicineIdForOrder,
+        "quantity": 10
+      })
+      .expectStatus(201)
+      .returns('id');
+      
+
+      testOrderId = order; // Ensure the order ID is correctly assigned
+    })
+    it('GET /orders/userOrders get all orders 200', async () => {
+      await pactum.spec()
+      .get('/orders/userOrders')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('DELETE /orders/deleteOrder with correct Authorization 200', async () => {
+      await pactum.spec()
+      .delete('/orders/deleteOrder')
+      .withQueryParams('orderId', testOrderId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200);
+    })
+  })
+})

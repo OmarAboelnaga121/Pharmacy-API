@@ -40,7 +40,7 @@ export class MedicineService {
 
     // Post Medicine
     async createMedicine(user: UserDto, medicine: MedicineDto){
-        console.log(user);
+
         
         if(user.role !== 'ADMIN' && user.role !== 'PHARMACIST'){ {
             throw new UnauthorizedException('You are not authorized to perform this action');

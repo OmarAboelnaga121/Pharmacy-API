@@ -27,7 +27,7 @@ CREATE TABLE "Medicines" (
     "id" SERIAL NOT NULL,
     "medicinieName" TEXT NOT NULL,
     "Description" TEXT NOT NULL,
-    "price" DECIMAL(65,30) NOT NULL,
+    "price" INTEGER NOT NULL,
     "stock" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

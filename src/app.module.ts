@@ -9,6 +9,7 @@ import { MedicineModule } from './medicine/medicine.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { OrdersModule } from './orders/orders.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -32,6 +33,7 @@ import * as redisStore from 'cache-manager-redis-store';
       ttl: 60, // Time to live in seconds
     }),
     OrdersModule,
+    NotificationsModule,
     
   ],
   controllers: [],

@@ -402,5 +402,56 @@ describe('AppController (e2e)', () => {
       })
       .expectStatus(200);
     })
+    it('PATCH /orders/updateOrder with correct Authorization 200', async () => {
+      await pactum.spec()
+      .patch('/orders/updateOrder')
+      .withQueryParams('orderId', testOrderId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "status": "DELIVERED"
+      })
+      .expectStatus(200)
+    })
+    it('PATCH /orders/updateOrder with correct Authorization for indelvary is should remove the number of delevaried product from stock 200', async () => {
+      await pactum.spec()
+      .patch('/orders/updateOrder')
+      .withQueryParams('orderId', testOrderId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .withJson({
+        "status": "OUTFORDELIVERY"
+      })
+      .expectStatus(200)
+    })
+    it('PATCH /orders/updateOrder without Authorization 401', async () => {
+      await pactum.spec()
+      .patch('/orders/updateOrder')
+      .withQueryParams('orderId', testOrderId)
+      .withJson({
+        "status": "DELIVERED"
+      })
+      .expectStatus(401)
+    })
+    it('GET /orders/singleOrder get single order for admin and customer support 200', async () => {
+      await pactum.spec()
+      .get('/orders/singleOrder')
+      .withQueryParams('orderId', testOrderId)
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
+    it('GET /orders/ordersByStatus get orders by status for admin and customer support 200', async () => {
+      await pactum.spec()
+      .get('/orders/ordersByStatus')
+      .withQueryParams('status', 'PENDING')
+      .withHeaders({
+        'Authorization': `Bearer $S{authToken}`
+      })
+      .expectStatus(200)
+    })
   })
 })

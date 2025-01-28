@@ -1,14 +1,23 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto, UserUpdateAdminDto, UserUpdateDto } from './dto';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 @Injectable()
 export class UserService {
-    constructor(private prismaService: PrismaService) {} // PrismaService
+    constructor(private prismaService: PrismaService, @Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
     // Get All Users
     async getAllUsers(user : UserDto){
+        const cacheKey = `all_users`;
+        const cachedUsers = await this.cacheManager.get<User[]>(cacheKey);
+        // check the cache
+        if (cachedUsers) {
+            return cachedUsers;
+        }
+        
         // Check user's role
         if(user.role !== Role.ADMIN && user.role !== Role.CUSTOMER_SUPPORT){
             throw new BadRequestException('You are not authorized to access this resource');
@@ -17,11 +26,26 @@ export class UserService {
         // Get all users
         const users = this.prismaService.user.findMany();
 
+        // Check Users
+        if ((await users).length === 0) {
+            throw new NotFoundException('No users found');
+        }
+
+        // Set Cache
+        await this.cacheManager.set(cacheKey, users, 60 * 60);
+
         // Return all users
         return users;
     }
     // Get user by roles
     async getUsersByRole(user : UserDto, role: Role){
+        const cacheKey = `user_profile_${user.id}`;
+        const cachedProfile = await this.cacheManager.get(cacheKey);
+        
+        if (cachedProfile) {
+            return cachedProfile;
+        }
+        
         // Check user's role
         if(user.role !== Role.ADMIN && user.role !== Role.CUSTOMER_SUPPORT){
             throw new BadRequestException('You are not authorized to access this resource');
@@ -35,6 +59,8 @@ export class UserService {
         const users = this.prismaService.user.findMany({
             where:{role: role}
         });
+
+        await this.cacheManager.set(cacheKey, users, 60 * 60);
 
         // Return all users
         return users;
@@ -84,6 +110,17 @@ export class UserService {
             where:{id: parseInt(userId)},
             data: data
         });
+
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: parseInt(userId),
+                from: user.name,
+                message: "Order is Out For Delivery",
+                type: "ORDER",
+                targetRole: [Role.ADMIN, Role.PHARMACIST, Role.CUSTOMER_SUPPORT],
+            }
+        })
 
         return updatedUser;
     }

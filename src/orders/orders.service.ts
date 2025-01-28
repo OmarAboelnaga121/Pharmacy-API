@@ -45,6 +45,17 @@ export class OrdersService {
             }
         });
 
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: newOrder.id,
+                from: user.name,
+                message: "New Order",
+                type: "ORDER",
+                targetRole: [Role.ADMIN, Role.CUSTOMER, Role.CUSTOMER_SUPPORT],
+            }
+        })
+
         return newOrder;
     }
 
@@ -75,6 +86,18 @@ export class OrdersService {
                 updatedAt: new Date()
             }
         });
+
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: order.id,
+                from: user.name,
+                message: "Order Has Canceled",
+                type: "ORDER",
+                targetRole: [Role.ADMIN, Role.CUSTOMER, Role.CUSTOMER_SUPPORT],
+            }
+        })
+
     }
 
     // Update order by stauts
@@ -107,21 +130,32 @@ export class OrdersService {
 
         if(status.status === OrderStatus.OUTFORDELIVERY){
             // Get medicine details
-    const medicine = await this.prismaService.medicines.findUnique({
-        where: { id: orderExists.medicineId }
-    });
+            const medicine = await this.prismaService.medicines.findUnique({
+                where: { id: orderExists.medicineId }
+            });
 
-    if (!medicine) {
-        throw new NotFoundException('Medicine not found');
-    }
+            if (!medicine) {
+                throw new NotFoundException('Medicine not found');
+            }
 
-    // Update medicine stock
-    await this.prismaService.medicines.update({
-        where: { id: orderExists.medicineId },
-        data: {
-            stock: medicine.stock - orderExists.quantity
-        }
-    });
+            // Update medicine stock
+            await this.prismaService.medicines.update({
+                where: { id: orderExists.medicineId },
+                data: {
+                    stock: medicine.stock - orderExists.quantity
+                }
+            });
+
+            const notification = await this.prismaService.notification.create({
+                data: {
+                    userId: user.id,
+                    resourceId: parseInt(orderId),
+                    from: user.name,
+                    message: "Order is Out For Delivery",
+                    type: "ORDER",
+                    targetRole: [Role.ADMIN, Role.CUSTOMER, Role.CUSTOMER_SUPPORT],
+                }
+            })
         }
 
         // Update order status

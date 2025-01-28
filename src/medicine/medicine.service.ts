@@ -50,6 +50,18 @@ export class MedicineService {
             data: medicine
         })
 
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: newMedicine.id,
+                from: user.name,
+                message: "New Medicine Has added",
+                type: "NEWMEDICINE",
+                targetRole: [Role.ADMIN, Role.PHARMACIST],
+
+            }
+        })
+
         return newMedicine;
     }
 
@@ -64,6 +76,18 @@ export class MedicineService {
             data: medicine
         })
 
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: updatedMedicine.id,
+                from: user.name,
+                message: "Medicine Has Updated",
+                type: "NEWMEDICINE",
+                targetRole: [Role.ADMIN, Role.PHARMACIST],
+                
+            }
+        })
+
         return updatedMedicine;
     }
 
@@ -75,6 +99,18 @@ export class MedicineService {
 
         const medicine = await this.prismaService.medicines.delete({
             where: {id: parseInt(id)}
+        })
+
+        const notification = await this.prismaService.notification.create({
+            data: {
+                userId: user.id,
+                resourceId: medicine.id,
+                from: user.name,
+                message: "Medicine Has Deleted",
+                type: "NEWMEDICINE",
+                targetRole: [Role.ADMIN, Role.PHARMACIST],
+                
+            }
         })
 
         return "Medicine Deleted Successfully";

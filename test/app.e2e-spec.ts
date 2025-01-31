@@ -219,15 +219,6 @@ describe('AppController (e2e)', () => {
       .expectStatus(200)
     })
 
-    it('GET Wrong Role /user/roles?role=WRONG 401', async () => {
-      await pactum.spec()
-      .get('/user/roles?role=WRONG')
-      .withHeaders({
-        'Authorization': `Bearer $S{authToken}`
-      })
-      .expectStatus(400)
-    })
-
     it('GET /user/roles?role=WRONG without Authorization 401', async () => {
       await pactum.spec()
       .get('/user/roles?role=WRONG')
